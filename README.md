@@ -2,6 +2,12 @@
 
 A simple chat app with a [Django](https://github.com/django/django) API and [React](https://github.com/facebook/react) front-end made for the purposes of learning.
 
+# Dependencies
+ + Django: `~2.2.0`
+ + React: `^16.8.6`
+   * `react-dom: ^16.8.6`                                                                                                                                                                                    
+   * `react-scripts: 3.01`
+
 # API
 
 ### Base Url: 

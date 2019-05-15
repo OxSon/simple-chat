@@ -15,6 +15,7 @@ A simple chat app with a [Django](https://github.com/django/django) API and [Rea
     | ----- | ------ | --------------------------- |
     | name  | string | the name of the new Channel |
  + `Message`: a message posted to a channel by a user
+ 
     | field | type   | description                 |
     | ----- | ------ | --------------------------- |
     | author  | ForeignKey | user that posted the message |

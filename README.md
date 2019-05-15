@@ -4,8 +4,9 @@ A simple chat app with a [Django](https://github.com/django/django) API and [Rea
 
 # Dependencies
  + Django: `~2.2.0`
+   * `django-cors-headers: ~3.0.1`
  + React: `^16.8.6`
-   * `react-dom: ^16.8.6`                                                                                                                                                                                    
+   * `react-dom: ^16.8.6`
    * `react-scripts: 3.01`
 
 # API

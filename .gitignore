@@ -1,0 +1,3 @@
+chatserver/chatserver/settings_dev.py
+myenv/
+chatserver/chatserver/settings_prod.py

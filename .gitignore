@@ -1,3 +1,5 @@
-chatserver/chatserver/settings_dev.py
 myenv/
+chatserver/chatserver/settings_dev.py
 chatserver/chatserver/settings_prod.py
+chatserver/db.sqlite3
+__pycache__/

@@ -11,10 +11,6 @@ A simple chat app with a [Django](https://github.com/django/django) API and [Rea
 
 # API
 
-### Base Url: 
-`https://oxson.pythonanywhere.com/api/`
- *Note: not yet active (the above link leads nowhere)*
-
 ## Objects:
  + `Channel`: a collection of grouped messages that can be posted to or read from
  
@@ -31,6 +27,8 @@ A simple chat app with a [Django](https://github.com/django/django) API and [Rea
     | channel  | ForeignKey | Channel to which the message belongs |
 
 ## Endpoints:
+ + Base Url: `https://oxson.pythonanywhere.com/api/`
+   * Note: not yet active (the above link leads nowhere)*
  + `Channels`
     * `GET:` Returns a list of all registered Channels
     * `POST:` Creates a new Channel

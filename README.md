@@ -45,3 +45,10 @@ A simple chat app with a [Django](https://github.com/django/django) API and [Rea
     | field | type | description |
     | ----- | ----| -------|
     | text | string | the content of the message to be posted |
+    
+    
+# To Do
+  + Write tests
+  + Set up User model
+ 
+check issues for more

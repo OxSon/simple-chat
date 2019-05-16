@@ -37,7 +37,7 @@ A simple chat app with a [Django](https://github.com/django/django) API and [Rea
     | ----- | ------ | --------------------------- |
     | name  | string | the name of the new Channel |
  + `Channels/<int:ChannelId>`
-    * Returns Channel object corresponding to ChannelId
+    * `GET`: Returns Channel object corresponding to ChannelId
  + `Channels/<int:ChannelId>/messages`
     * `GET:` Returns a list of Messages
     * `POST:` Posts a Message

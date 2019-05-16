@@ -35,16 +35,20 @@ def channel_detail(request, pk):
     channel = get_object_or_404(Channel, pk=pk)
     return JsonResponse(model_to_dict(channel))
 
+#FIXME
+@csrf_exempt
 def messages(request, pk):
     if request.method == 'GET':
+        #FIXME Does the below need to be casted?
+        #channel = Channel(get_object_or_404(Channel, pk=pk))
         channel = get_object_or_404(Channel, pk=pk)
         messages = list(map(lambda m : model_to_dict(m), \
-                Message.objects.filter(channel=channel).order_by(timestamp)))
+                Message.objects.filter(channel=channel).order_by('timestamp')))
 
         return JsonResponse(messages, safe=False)
     elif request.method == 'POST':
         text = request.POST['text']
-        message = Message(text=text, channel=pk)
+        message = Message(text=text, channel=Channel.objects.get(pk=pk), author=request.user)
         message.save()
         return JsonResponse({"pk": message.pk})
     else:

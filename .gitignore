@@ -1,6 +1,28 @@
 
-# Created by https://www.gitignore.io/api/django,git,node,vim,python
-# Edit at https://www.gitignore.io/?templates=django,git,node,vim,python
+# Created by https://www.gitignore.io/api/data,database,django,git,linux,node,python,vim
+# Edit at https://www.gitignore.io/?templates=data,database,django,git,linux,node,python,vim
+
+### Data ###
+*.csv
+*.dat
+*.efx
+*.gbr
+*.key
+*.pps
+*.ppt
+*.pptx
+*.sdf
+*.tax2010
+*.vcf
+*.xml
+
+### Database ###
+*.accdb
+*.db
+*.dbf
+*.mdb
+*.pdb
+*.sqlite3
 
 ### Django ###
 *.log
@@ -8,7 +30,6 @@
 *.pyc
 __pycache__/
 local_settings.py
-db.sqlite3
 media
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
@@ -112,7 +133,6 @@ celerybeat-schedule
 .env
 .venv
 env/
-myenv/
 venv/
 ENV/
 env.bak/
@@ -150,6 +170,21 @@ dmypy.json
 *_BASE_*.txt
 *_LOCAL_*.txt
 *_REMOTE_*.txt
+
+### Linux ###
+*~
+
+# temporary files which can be created if a process still has a handle open of a deleted file
+.fuse_hidden*
+
+# KDE directory preferences
+.directory
+
+# Linux trash folder which might appear on any partition or disk
+.Trash-*
+
+# .nfs files are created when an open file is removed but is still being accessed
+.nfs*
 
 ### Node ###
 # Logs
@@ -302,11 +337,9 @@ Session.vim
 
 # Temporary
 .netrwhist
-*~
 # Auto-generated tag files
 tags
 # Persistent undo
 [._]*.un~
 
-# End of https://www.gitignore.io/api/django,git,node,vim,python
-
+# End of https://www.gitignore.io/api/data,database,django,git,linux,node,python,vim

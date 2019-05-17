@@ -112,7 +112,6 @@ celerybeat-schedule
 .env
 .venv
 env/
-myenv/
 venv/
 ENV/
 env.bak/
@@ -309,4 +308,3 @@ tags
 [._]*.un~
 
 # End of https://www.gitignore.io/api/django,git,node,vim,python
-

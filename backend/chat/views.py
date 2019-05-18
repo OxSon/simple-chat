@@ -41,8 +41,7 @@ def channels(request):
             channel.save()
             return JsonResponse({"pk": channel.pk}, status=200)
     else:
-        return bad_request_type
-
+        return bad_request_type(request)
 def channel_detail(request, pk):
     if request.method == 'GET':
         channel = Channel.objects.filter(pk=pk)
@@ -60,7 +59,7 @@ def channel_detail(request, pk):
     #elif request.method == 'DELETE':
         ###raise NotImplementedError
     else:
-        return JsonResponse({"status": False}, status=405)
+        return bad_request_type(request)
 
 def messages(request, pk):
     if request.method == 'GET':
@@ -79,13 +78,12 @@ def messages(request, pk):
         message.save()
         return JsonResponse({"pk": message.pk}, status=200)
     else:
-        return bad_request_type
+        return bad_request_type(request)
 
-def bad_request_type():
-    #return JsonResponse({"status": False}, status=405)
+def bad_request_type(request):
         return JsonResponse(
                 {
-                   "status": False, 
+                   "status": False,
                     "message": f"request method {request.method} not supported"
                 },
                     status=405)

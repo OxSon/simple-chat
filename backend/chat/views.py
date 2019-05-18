@@ -6,15 +6,35 @@ from .models import Channel, Message
 
 def channels(request):
     if request.method == 'GET':
-        channels = list(map(lambda x : model_to_dict(x), Channel.objects.all()))
-        return JsonResponse({"status": True, "Channels": channels}, safe=False)
+
+        if Channel.objects:
+            channels = list(map(lambda x : model_to_dict(x), Channel.objects.all()))
+            return JsonResponse(
+                {
+                    "status": True,
+                    "Channels": channels
+                },
+                    safe=False,
+                    status=200)
+        else:
+            return JsonResponse(
+                    {
+                        "status": True,
+                        "Channels": ""
+                    },
+                        status=200)
+
     elif request.method == 'PUT':
         name = request.headers['name']
 
         if not name:
-            return JsonResponse({"status": False,
-                "message": "must include 'name' header"}, status=405)
-        elif Channel.objects.filter(name=name).count() > 0:
+            return JsonResponse(
+                    {
+                        "status": False,
+                        "message": "must include 'name' header"
+                },
+                    status=405)
+        elif Channel.objects.filter(name=name):
             return JsonResponse({"status": True}, status=201)
         else:
             channel = Channel(name=name)
@@ -25,14 +45,22 @@ def channels(request):
 
 def channel_detail(request, pk):
     if request.method == 'GET':
-        channel = get_object_or_404(Channel, pk=pk)
-        return JsonResponse({"status": True, "Channel": model_to_dict(channel)},
-                status=200)
+        channel = Channel.objects.get(pk=pk)
+        if channel:
+            return JsonResponse(
+                    {
+                        "status": True,
+                        "Channel": model_to_dict(channel)
+                    },
+                        status=200)
+        else:
+            return JsonResponse({"status": False}, status=404)
+
     #FIXME NotImplemented
-    elif request.method == 'DELETE':
-        raise NotImplementedError
-    else:
-        return bad_request_type
+    #elif request.method == 'DELETE':
+        ###raise NotImplementedError
+    ###else:
+        ###return bad_request_type
 
 def messages(request, pk):
     if request.method == 'GET':
@@ -43,13 +71,22 @@ def messages(request, pk):
         return JsonResponse(messages, safe=False, status=200)
     elif request.method == 'POST':
         text = request.POST['text']
-        message = Message(text=text, channel=Channel.objects.get(pk=pk), author=request.user)
+        message = Message(
+                    text=text,
+                    channel=Channel.objects.get(pk=pk),
+                    author=request.user
+                )
         message.save()
         return JsonResponse({"pk": message.pk}, status=200)
     else:
         return bad_request_type
 
 def bad_request_type(request):
-        return JsonResponse({"status": False,
-                "message": f"request method {request.method} not supported"},
-                status=405)
+        return JsonResponse(
+                {
+                    "status": False, 
+                    "message": f"request method {request.method} not supported"
+                },
+                    status=405)
+
+

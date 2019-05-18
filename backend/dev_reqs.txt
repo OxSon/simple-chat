@@ -1,0 +1,5 @@
+neovim==0.3.1
+pylint==2.3.1
+pylint-django==2.0.9
+pylint-plugin-utils==0.5
+pynvim==0.3.2

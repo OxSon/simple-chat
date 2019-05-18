@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse, Http404, HttpResponse
 from django.forms.models import model_to_dict
+from django.middleware.csrf import get_token
 
 from .models import Channel, Message
 
@@ -33,8 +34,8 @@ def channels(request):
                         "status": False,
                         "message": "must include 'name' header"
                     },
-                        status=405)
-        elif Channel.objects.filter(name=name):
+                        status=422)
+        elif Channel.objects.filter(name=name).exists():
             return JsonResponse({"status": True}, status=201)
         else:
             channel = Channel(name=name)
@@ -79,6 +80,8 @@ def messages(request, pk):
         return JsonResponse({"pk": message.pk}, status=200)
     else:
         return bad_request_type(request)
+
+
 
 def bad_request_type(request):
         return JsonResponse(

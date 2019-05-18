@@ -32,8 +32,8 @@ def channels(request):
                     {
                         "status": False,
                         "message": "must include 'name' header"
-                },
-                    status=405)
+                    },
+                        status=405)
         elif Channel.objects.filter(name=name):
             return JsonResponse({"status": True}, status=201)
         else:
@@ -45,12 +45,12 @@ def channels(request):
 
 def channel_detail(request, pk):
     if request.method == 'GET':
-        channel = Channel.objects.get(pk=pk)
-        if channel:
+        channel = Channel.objects.filter(pk=pk)
+        if channel.exists():
             return JsonResponse(
                     {
                         "status": True,
-                        "Channel": model_to_dict(channel)
+                        "Channel": model_to_dict(channel.first())
                     },
                         status=200)
         else:
@@ -59,8 +59,8 @@ def channel_detail(request, pk):
     #FIXME NotImplemented
     #elif request.method == 'DELETE':
         ###raise NotImplementedError
-    ###else:
-        ###return bad_request_type
+    else:
+        return JsonResponse({"status": False}, status=405)
 
 def messages(request, pk):
     if request.method == 'GET':
@@ -81,10 +81,11 @@ def messages(request, pk):
     else:
         return bad_request_type
 
-def bad_request_type(request):
+def bad_request_type():
+    #return JsonResponse({"status": False}, status=405)
         return JsonResponse(
                 {
-                    "status": False, 
+                   "status": False, 
                     "message": f"request method {request.method} not supported"
                 },
                     status=405)

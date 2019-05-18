@@ -52,6 +52,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+#CORS and CSRF stuff to make react and django play nicely together
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_WHITELIST = ['localhost:3000']
+
+CSRF_TRUSTED_ORIGINS = ['localhost:3000']
+
 ROOT_URLCONF = 'chatserver.urls'
 
 TEMPLATES = [

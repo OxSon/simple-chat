@@ -3,12 +3,11 @@ import "./App.css";
 
 const API = "http://localhost:8000";
 
-function Frame(props) {
+function Frame() {
     return (
         //FIXME to be added later
         //<Menu/>
-        <MainContainer channelId={2}>
-        </MainContainer>
+        <MainContainer channelId={2} />
     );
 }
 
@@ -27,13 +26,15 @@ class MainContainer extends Component {
     componentDidMount() {
         //FIXME hardcording for now
         fetch(`${API}/channels/2`)
-            .then((response) => {return response.json();})
-            .then((json) => this.setState({ channelName: json.name}))
-            .catch((ex) => console.log("parse error", ex));
+            .then(response => {
+                return response.json();
+            })
+            .then(json => this.setState({ channelName: json.name }))
+            .catch(ex => console.log("parse error", ex));
     }
 
     render() {
-        return <Channel id={this.channelId}/>;
+        return <Channel id={this.channelId} />;
     }
 }
 
@@ -46,15 +47,15 @@ class Channel extends Component {
     }
 
     //componentDidMount() {
-        //this.timerID = setInterval(
-            //() => this.refresh(),
-            //1000
-            //);
-        //}
+    //this.timerID = setInterval(
+    //() => this.refresh(),
+    //1000
+    //);
+    //}
 
     //componentWillUnmount() {
-        //clearInterval(this.timerID);
-        //}
+    //clearInterval(this.timerID);
+    //}
 
     //refresh() {
     //this.setState({
@@ -68,21 +69,21 @@ class Channel extends Component {
 
     getMessages(id) {
         fetch(`${API}/channels/2/messages`)
-            .then((response) => {
+            .then(response => {
                 return response.json();
             })
-            .then((json) => {
+            .then(json => {
                 this.setState({
                     messages: json
                 });
             })
-            .catch((ex) => {
+            .catch(ex => {
                 console.log("Parsing error", ex);
             });
     }
 
     render() {
-        return this.state.messages.map(m => <Message message={m} key={m.id}/>);
+        return this.state.messages.map(m => <Message message={m} key={m.id} />);
     }
 }
 
@@ -90,7 +91,9 @@ function Message(props) {
     return (
         <div className="message">
             <p>
-                <b>{props.message.author}({props.message.timestamp}): </b>
+                <b>
+                    {props.message.author}({props.message.timestamp}):{" "}
+                </b>
                 {props.message.text}
             </p>
         </div>

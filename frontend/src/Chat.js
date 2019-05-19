@@ -4,12 +4,12 @@ import "./App.css";
 const API = "http://localhost:8000";
 
 function Frame(props) {
-        return (
-            //FIXME to be added later
-            //<Menu/>
-            <MainContainer channelId={2}>
-            </MainContainer>
-        );
+    return (
+        //FIXME to be added later
+        //<Menu/>
+        <MainContainer channelId={2}>
+        </MainContainer>
+    );
 }
 
 class MainContainer extends Component {
@@ -81,9 +81,8 @@ class Channel extends Component {
             });
     }
 
-
     render() {
-        return this.state.messages.map(m => <Message message={m}/>);
+        return this.state.messages.map(m => <Message message={m} key={m.id}/>);
     }
 }
 

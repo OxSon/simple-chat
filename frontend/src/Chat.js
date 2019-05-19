@@ -2,12 +2,13 @@ import React, { Component } from "react";
 import "./App.css";
 
 const API = "http://localhost:8000";
+const defaultChannelId = 4;
 
 function Frame() {
     return (
         //FIXME to be added later
         //<Menu/>
-        <MainContainer channelId={2} />
+        <MainContainer channelId={defaultChannelId} />
     );
 }
 
@@ -16,7 +17,7 @@ class MainContainer extends Component {
         super(props);
 
         this.state = {
-            channelName: null
+            channel: { id: defaultChannelId }
             //FIXME to be added
             //text-area
             //submit-button
@@ -24,57 +25,41 @@ class MainContainer extends Component {
     }
 
     componentDidMount() {
-        //FIXME hardcording for now
-        fetch(`${API}/channels/2`)
+        fetch(`${API}/channels/${defaultChannelId}`)
             .then(response => {
                 return response.json();
             })
-            .then(json => this.setState({ channelName: json.name }))
+            .then(json => this.setState({ channel: json.Channel }))
             .catch(ex => console.log("parse error", ex));
     }
 
     render() {
-        return <Channel id={this.channelId} />;
+        return <Channel id={this.state.channel.id} />;
     }
 }
 
 class Channel extends Component {
     constructor(props) {
         super(props);
-        this.state = { messages: [] };
-
-        //this.refresh = this.refresh.bind(this);
+        this.state = {
+            //FIXME ask joe what this is all about?
+            loadingData: true,
+            messages: []
+        };
     }
-
-    //componentDidMount() {
-    //this.timerID = setInterval(
-    //() => this.refresh(),
-    //1000
-    //);
-    //}
-
-    //componentWillUnmount() {
-    //clearInterval(this.timerID);
-    //}
-
-    //refresh() {
-    //this.setState({
-    //messages: this.getMessages(this.props.id),
-    //});
-    //}
 
     componentDidMount() {
-        this.getMessages(this.props.id);
-    }
+        //FIXME ask joe what this is all about?
+        this._isMounted = true;
 
-    getMessages(id) {
-        fetch(`${API}/channels/2/messages`)
+        fetch(`${API}/channels/${this.props.id}/messages`)
             .then(response => {
                 return response.json();
             })
             .then(json => {
                 this.setState({
-                    messages: json
+                    loadingData: false,
+                    messages: json.messages
                 });
             })
             .catch(ex => {
@@ -83,20 +68,27 @@ class Channel extends Component {
     }
 
     render() {
-        return this.state.messages.map(m => <Message message={m} key={m.id} />);
+        //FIXME ask joe what this is all about?
+        if (!this.state.loadingData) {
+            return this.state.messages.map(m => (
+                <Message message={m} key={m.id} />
+            ));
+        } else {
+            return null;
+        }
     }
 }
 
 function Message(props) {
     return (
-        <div className="message">
-            <p>
+        <React.Fragment>
+            <div className="message-header">
                 <b>
                     {props.message.author}({props.message.timestamp}):{" "}
                 </b>
-                {props.message.text}
-            </p>
-        </div>
+            </div>
+            <div className="message-body">{props.message.text}</div>
+        </React.Fragment>
     );
 }
 

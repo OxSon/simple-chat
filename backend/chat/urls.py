@@ -12,10 +12,6 @@ Class-based views
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-
-    Endpoints:
-        Post a message
-        View messages
 """
 
 from django.urls import path, include
@@ -25,4 +21,6 @@ urlpatterns = [
     path('channels', views.channels, name='channels'),
     path('channels/<int:pk>', views.channel_detail, name='channel_detail'),
     path('channels/<int:pk>/messages', views.messages, name='messages'),
+    path('csrf/', views.csrf, name='csrf'),
+    path('ping/', views.ping, name='ping'),
 ]

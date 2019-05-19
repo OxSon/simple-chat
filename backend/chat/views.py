@@ -43,6 +43,7 @@ def channels(request):
             return JsonResponse({"pk": channel.pk}, status=200)
     else:
         return bad_request_type(request)
+
 def channel_detail(request, pk):
     if request.method == 'GET':
         channel = Channel.objects.filter(pk=pk)
@@ -81,7 +82,11 @@ def messages(request, pk):
     else:
         return bad_request_type(request)
 
+def csrf(request):
+    return JsonResponse({'csrfToken': get_token(request)})
 
+def ping(request):
+    return JsonResponse({'result': 'OK'})
 
 def bad_request_type(request):
         return JsonResponse(

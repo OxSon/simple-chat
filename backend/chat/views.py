@@ -69,7 +69,7 @@ def messages(request, pk):
         messages = list(map(lambda m : model_to_dict(m), \
                 Message.objects.filter(channel=channel).order_by('timestamp')))
 
-        return JsonResponse(messages, safe=False, status=200)
+        return JsonResponse({"status": True, "messages": messages}, safe=False, status=200)
     elif request.method == 'POST':
         text = request.POST['text']
         message = Message(

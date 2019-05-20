@@ -5,14 +5,14 @@ from django.utils import timezone
 class Channel(models.Model):
     name = models.CharField(max_length=20)
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        ordering = ('name',)
 
 class Message(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     text = models.TextField()
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(auto_now_add=True)
     channel = models.ForeignKey('Channel', on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.author}, {self.channel.name}: {self.text} @ {self.timestamp}"
+    class Meta:
+        ordering = ('timestamp',)

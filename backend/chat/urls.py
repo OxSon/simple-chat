@@ -16,11 +16,13 @@ Including another URLconf
 
 from django.urls import path, include
 from . import views
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
 
 urlpatterns = [
-    path('channels', views.channels, name='channels'),
-    path('channels/<int:pk>', views.channel_detail, name='channel_detail'),
-    path('channels/<int:pk>/messages', views.messages, name='messages'),
-    path('csrf/', views.csrf, name='csrf'),
-    path('ping/', views.ping, name='ping'),
+    path('', include(router.urls)),
+    path('api-auth', include('rest_framework.urls', namespace='rest_framework'))
 ]

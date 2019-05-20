@@ -50,7 +50,8 @@ REST_FRAMEWORK = {
             'rest_framework.permissions.IsAuthenticatedOrReadOnly',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            'rest_framework_simplejwt.authentication.JWTAuthentication',
+            #'rest_framework_simplejwt.authentication.JWTAuthentication',
+            'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         ),
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
@@ -76,6 +77,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
+
+JWT_ALLOW_REFRESH = True
 
 ROOT_URLCONF = 'chatserver.urls'
 

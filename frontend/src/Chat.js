@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./App.css";
+import "whatwg-fetch";
 
 const API = "http://localhost:8000";
 const defaultChannelId = 4;
@@ -8,88 +9,65 @@ function Frame() {
     return (
         //FIXME to be added later
         //<Menu/>
-        <MainContainer channelId={defaultChannelId} />
+        <MainContainer/>
     );
 }
 
-class MainContainer extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            channel: { id: defaultChannelId }
-            //FIXME to be added
-            //text-area
-            //submit-button
-        };
-    }
-
-    componentDidMount() {
-        fetch(`${API}/channels/${defaultChannelId}`)
-            .then(response => {
-                return response.json();
-            })
-            .then(json => this.setState({ channel: json.Channel }))
-            .catch(ex => console.log("parse error", ex));
-    }
-
-    render() {
-        return <Channel id={this.state.channel.id} />;
-    }
+function MainContainer(props) {
+    return (
+        //Message display area
+        <MessageWindow channel={defaultChannelId}/>
+        //user interaction area
+        //<InputArea/>
+    );
 }
 
-class Channel extends Component {
+class MessageWindow extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            //FIXME ask joe what this is all about?
-            loadingData: true,
-            messages: []
-        };
+        this.state = {messages: []};
     }
 
     componentDidMount() {
-        //FIXME ask joe what this is all about?
-        this._isMounted = true;
-
-        fetch(`${API}/channels/${this.props.id}/messages`)
-            .then(response => {
+        fetch(`${API}/channels/${this.props.channel}/messages`)
+            .then(checkStatus)
+            .then((response) => {
                 return response.json();
             })
-            .then(json => {
+            .then((json) => {
+                console.log(json);
                 this.setState({
-                    loadingData: false,
-                    messages: json.messages
+                    messages: json
                 });
             })
-            .catch(ex => {
-                console.log("Parsing error", ex);
-            });
+            .catch((error) => console.log(error));
+    }
+
+    componentWillUnmount() {
     }
 
     render() {
-        //FIXME ask joe what this is all about?
-        if (!this.state.loadingData) {
-            return this.state.messages.map(m => (
-                <Message message={m} key={m.id} />
-            ));
-        } else {
-            return null;
-        }
+        //FIXME
+        return <h1>{this.state.messages.map(
+            m => <Message owner={m.owner} timestamp={m.timestamp} text={m.text}/>
+        )}</h1>;
     }
 }
 
 function Message(props) {
     return (
-        <React.Fragment>
-            <div className="message-header">
-                <b>
-                    {props.message.author}({props.message.timestamp}):{" "}
-                </b>
-            </div>
-            <div className="message-body">{props.message.text}</div>
-        </React.Fragment>
+        <p><b>{props.owner}({props.timestamp})</b>{props.text}</p>
     );
+}
+
+function checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+        return response;
+    } else {
+        var error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+    }
 }
 
 export default Frame;

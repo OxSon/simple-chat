@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 
 const API_HOST = "http://localhost:8000";
 
@@ -27,4 +27,4 @@ async function testRequest(method) {
     return data.result;
 }
 
-export default App;
+export default getCsrfToken;

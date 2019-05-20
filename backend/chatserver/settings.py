@@ -42,13 +42,12 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 
-#FIXME adds pagination
 REST_FRAMEWORK = {
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
         'PAGE_SIZE': 10,
         #FIXME add authentication
         'DEFAULT_PERMISSION_CLASS': (
-            'rest_framework.permissions.AllowAny',
+            'rest_framework.permissions.IsAuthenticatedOrReadOnly',
         ),
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',

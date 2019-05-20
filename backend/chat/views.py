@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 from rest_framework import viewsets, status
 from rest_framework.decorators import action, api_view
@@ -31,7 +32,7 @@ class ChannelViewSet(viewsets.ModelViewSet):
         else:
             serializer = MessageSerializer(data=self.data)
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(owner=self.user, timestamp=timezone.now())
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -9,6 +9,8 @@ class ChannelSerializer(serializers.ModelSerializer):
          fields = ('id', 'name', 'messages')
 
 class MessageSerializer(serializers.ModelSerializer):
+    owner = serializers.ReadOnlyField(source='owner.username')
+
     class Meta:
         model = Message
         #FIXME correct way to do owner? source?

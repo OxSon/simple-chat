@@ -1,18 +1,26 @@
-from django.conf import settings
 from django.db import models
-from django.utils import timezone
 
 class Channel(models.Model):
+    """
+    Channel is a named collection of messages
+    """
     name = models.CharField(max_length=20)
+    created = models.DateTimeField(auto_now_add=True)
+    #FIXME add predicate to filter
+    #messages = models.PrimaryKeyRelatedField(many=True, queryset=Message.objects.filter())
 
-    def __str__(self):
-        return self.name
+    class Meta:
+        ordering=('created',)
 
 class Message(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    """
+    A Message is an arbitrarily long unit of Unicode text associated with a user and a channel
+    """
+        #FIXME correct way to do owner? source?
+    owner = models.ForeignKey('auth.User', related_name='messages', on_delete=models.CASCADE)
+    channel = models.ForeignKey('Channel', related_name='messages', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
-    timestamp = models.DateTimeField(default=timezone.now)
-    channel = models.ForeignKey('Channel', on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f"{self.author}, {self.channel.name}: {self.text} @ {self.timestamp}"
+    class Meta:
+        ordering=('timestamp',)

@@ -1,99 +1,52 @@
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse, Http404, HttpResponse
-from django.forms.models import model_to_dict
-from django.middleware.csrf import get_token
+from django.contrib.auth.models import User
 
+from rest_framework import viewsets, status
+from rest_framework.decorators import action, api_view
+from rest_framework.response import Response
+from rest_framework import viewsets
+
+from .serializers import UserSerializer, ChannelSerializer, MessageSerializer
 from .models import Channel, Message
 
-def channels(request):
-    if request.method == 'GET':
+class ChannelViewSet(viewsets.ModelViewSet):
+    """
+    This viewset provides 'list', 'create', 'retrieve',
+    'update' and 'destroy' actions.
 
-        if Channel.objects:
-            channels = list(map(lambda x : model_to_dict(x), Channel.objects.all()))
-            return JsonResponse(
-                {
-                    "status": True,
-                    "Channels": channels
-                },
-                    safe=False,
-                    status=200)
+    Additionally, it provides the custom 'post_message' action
+    """
+    queryset = Channel.objects.all()
+    serializer_class = ChannelSerializer
+
+    #FIXME add this
+    #permission_classes =
+
+    @api_view(['GET', 'POST'])
+    def messages(self, pk):
+        if self.method == 'GET':
+            messages = Message.objects.filter(channel=pk)
+            serializer = MessageSerializer(messages, many=True)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
         else:
-            return JsonResponse(
-                    {
-                        "status": True,
-                        "Channels": ""
-                    },
-                        status=200)
-
-    elif request.method == 'PUT':
-        name = request.headers['name']
-
-        if not name:
-            return JsonResponse(
-                    {
-                        "status": False,
-                        "message": "must include 'name' header"
-                    },
-                        status=422)
-        elif Channel.objects.filter(name=name).exists():
-            return JsonResponse({"status": True}, status=201)
-        else:
-            channel = Channel(name=name)
-            channel.save()
-            return JsonResponse({"pk": channel.pk}, status=200)
-    else:
-        return bad_request_type(request)
-
-def channel_detail(request, pk):
-    if request.method == 'GET':
-        channel = Channel.objects.filter(pk=pk)
-        if channel.exists():
-            return JsonResponse(
-                    {
-                        "status": True,
-                        "Channel": model_to_dict(channel.first())
-                    },
-                        status=200)
-        else:
-            return JsonResponse({"status": False}, status=404)
-
-    #FIXME NotImplemented
-    #elif request.method == 'DELETE':
-        ###raise NotImplementedError
-    else:
-        return bad_request_type(request)
-
-def messages(request, pk):
-    if request.method == 'GET':
-        channel = get_object_or_404(Channel, pk=pk)
-        messages = list(map(lambda m : model_to_dict(m), \
-                Message.objects.filter(channel=channel).order_by('timestamp')))
-
-        return JsonResponse({"status": True, "messages": messages}, safe=False, status=200)
-    elif request.method == 'POST':
-        text = request.POST['text']
-        message = Message(
-                    text=text,
-                    channel=Channel.objects.get(pk=pk),
-                    author=request.user
-                )
-        message.save()
-        return JsonResponse({"pk": message.pk}, status=200)
-    else:
-        return bad_request_type(request)
-
-def csrf(request):
-    return JsonResponse({'csrfToken': get_token(request)})
-
-def ping(request):
-    return JsonResponse({'result': 'OK'})
-
-def bad_request_type(request):
-        return JsonResponse(
-                {
-                   "status": False,
-                    "message": f"request method {request.method} not supported"
-                },
-                    status=405)
+            serializer = MessageSerializer(data=self.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class MessageViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset provides 'list' and 'detail' functionality
+    """
+    queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    This viewset provides 'list' and 'detail' functionality
+    """
+    queryset=User.objects.all()
+    serializer_class = UserSerializer

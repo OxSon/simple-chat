@@ -37,9 +37,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chat',
+    'chat.apps.ChatConfig',
     'corsheaders',
+    'rest_framework',
 ]
+
+#FIXME adds pagination
+REST_FRAMEWORK = {
+        'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+        'PAGE_SIZE': 10,
+        #FIXME add authentication
+        'DEFAULT_PERMISSION_CLASS': (
+            'rest_framework.permissions.AllowAny',
+        ),
+        'DEFAULT_RENDERER_CLASSES': (
+            'rest_framework.renderers.JSONRenderer',
+            'rest_framework.renderers.BrowsableAPIRenderer',
+        )
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

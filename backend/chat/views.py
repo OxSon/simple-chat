@@ -44,6 +44,7 @@ class MessageViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset provides 'list' and 'detail' functionality
     """
+    permission_classes = (IsAuthenticated,)
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
 

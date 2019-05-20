@@ -13,13 +13,12 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        #FIXME correct way to do owner? source?
         fields = ('id', 'owner', 'channel', 'timestamp', 'text')
 
 
 class UserSerializer(serializers.ModelSerializer):
     #FIXME add predicate to filter
-    messages = serializers.PrimaryKeyRelatedField(many=True, queryset=Message.objects.filter())
+    messages = serializers.PrimaryKeyRelatedField(many=True, queryset=Message.objects)
 
     class Meta:
         model = User

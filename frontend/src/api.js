@@ -25,10 +25,11 @@ function getToken() {
 }
 
 async function request(endpoint, request, authenticated = false) {
-    let token = localStorage.getItem("jwt_token") || getToken();
     let config = {};
 
     if (authenticated) {
+        let token = localStorage.getItem("jwt_token") || getToken();
+
         if (token) {
             config = {
                 headers: { Authorization: `JWT ${token}` }
@@ -53,5 +54,5 @@ function checkStatus(response) {
     }
 }
 
-export { checkStatus, getToken };
+export { checkStatus, };
 export default request;

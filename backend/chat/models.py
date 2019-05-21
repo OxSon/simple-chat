@@ -6,8 +6,6 @@ class Channel(models.Model):
     """
     name = models.CharField(max_length=20)
     created = models.DateTimeField(auto_now_add=True)
-    #FIXME add predicate to filter
-    #messages = models.PrimaryKeyRelatedField(many=True, queryset=Message.objects.filter())
 
     class Meta:
         ordering=('created',)

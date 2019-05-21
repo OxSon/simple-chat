@@ -1,73 +1,142 @@
 import React, { Component } from "react";
 import "./App.css";
-import "whatwg-fetch";
+import request, { checkStatus, getToken } from "./Api.js";
 
-const API = "http://localhost:8000";
 const defaultChannelId = 4;
 
 function Frame() {
     return (
         //FIXME to be added later
         //<Menu/>
-        <MainContainer/>
+        <MainContainer />
     );
 }
 
-function MainContainer(props) {
-    return (
-        //Message display area
-        <MessageWindow channel={defaultChannelId}/>
-        //user interaction area
-        //<InputArea/>
-    );
+class MainContainer extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { channel: defaultChannelId };
+    }
+
+    render() {
+        return (
+            <React.Fragment>
+                <MessageWindow channel={this.state.channel} />
+                <InputArea channel={this.state.channel} />
+            </React.Fragment>
+        );
+    }
+}
+
+class InputArea extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { value: null };
+
+        this.handleChange = this.handleChange.bind(this);
+        this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleFocus = this.handleFocus.bind(this);
+    }
+
+    handleChange(event) {
+        this.setState({ value: event.target.value });
+    }
+
+    handleSubmit(event) {
+        let req = {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                channel: this.props.channel,
+                text: this.state.value,
+            }),
+        };
+        console.log("Handling submit: ", req);
+
+        request(`channels/${this.props.channel}/messages`, req, true)
+            .then(checkStatus)
+            .then(response => response.json())
+            .then(json => console.log(json));
+        event.preventDefault();
+    }
+
+    handleFocus(event) {
+        document.getElementById("input").value = null;
+        event.preventDefault();
+    }
+
+    render() {
+        return (
+            //FIXME invalid action, post to api?
+            <form>
+                <textarea
+                    rows="4"
+                    cols="80"
+                    onChange={this.handleChange}
+                    onSubmit={this.handleSubmit}
+                    onFocus={this.handleFocus}
+                    id="input"
+                    defaultValue="Enter your message here."
+                />
+                <button onClick={this.handleSubmit}>Send Message</button>
+            </form>
+        );
+    }
 }
 
 class MessageWindow extends Component {
     constructor(props) {
         super(props);
-        this.state = {messages: []};
+        this.state = { messages: [] };
     }
 
     componentDidMount() {
-        fetch(`${API}/channels/${this.props.channel}/messages`)
+        request(`channels/${this.props.channel}/messages`, {
+        }, true)
             .then(checkStatus)
-            .then((response) => {
+            .then(response => {
                 return response.json();
             })
-            .then((json) => {
+            .then(json => {
                 console.log(json);
                 this.setState({
                     messages: json
                 });
             })
-            .catch((error) => console.log(error));
-    }
-
-    componentWillUnmount() {
+            .catch(error => console.log(error));
     }
 
     render() {
-        //FIXME
-        return <h1>{this.state.messages.map(
-            m => <Message owner={m.owner} timestamp={m.timestamp} text={m.text}/>
-        )}</h1>;
+        return (
+            <h1>
+                {this.state.messages
+                    .slice(-3)
+                    .map(m => (
+                        <Message
+                            owner={m.owner}
+                            timestamp={m.timestamp}
+                            text={m.text}
+                            key={m.id}
+                        />
+                    ))
+                    .reverse()}
+            </h1>
+        );
     }
 }
 
 function Message(props) {
     return (
-        <p><b>{props.owner}({props.timestamp})</b>{props.text}</p>
+        <p>
+            <b>
+                {props.owner}({props.timestamp})
+            </b>
+            {props.text}
+        </p>
     );
-}
-
-function checkStatus(response) {
-    if (response.status >= 200 && response.status < 300) {
-        return response;
-    } else {
-        var error = new Error(response.statusText);
-        error.response = response;
-        throw error;
-    }
 }
 
 export default Frame;

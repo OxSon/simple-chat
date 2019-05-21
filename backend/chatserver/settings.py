@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from corsheaders.defaults import default_methods, default_headers
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,13 +49,13 @@ REST_FRAMEWORK = {
         'PAGE_SIZE': 10,
         'DEFAULT_PERMISSION_CLASSES': (
             #'rest_framework.permissions.IsAuthenticated',
-            #'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+            'rest_framework.permissions.IsAuthenticatedOrReadOnly',
             #FIXME in production
-            'rest_framework.permissions.AllowAny',
+            #'rest_framework.permissions.AllowAny',
         ),
         'DEFAULT_AUTHENTICATION_CLASSES': (
-            #'rest_framework_simplejwt.authentication.JWTAuthentication',
-            #'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+            'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+            'rest_framework.authentication.SessionAuthentication',
         ),
         'DEFAULT_RENDERER_CLASSES': (
             'rest_framework.renderers.JSONRenderer',
@@ -76,7 +78,14 @@ MIDDLEWARE = [
 
 CORS_ALLOW_CREDENTIALS = True
 
-CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
+CORS_ORIGIN_WHITELIST = [
+        'http://localhost:3000',
+        'https://localhost:3000',
+]
+
+CORS_ALLOW_METHODS = list(default_methods)
+
+CORS_ALLOW_HEADERS = list(default_headers)
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']
 

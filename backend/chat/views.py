@@ -2,13 +2,13 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from rest_framework import viewsets, status
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import UserSerializer, ChannelSerializer, MessageSerializer
 from .models import Channel, Message
+
 
 class ChannelViewSet(viewsets.ModelViewSet):
     """
@@ -33,8 +33,12 @@ class ChannelViewSet(viewsets.ModelViewSet):
             serializer = MessageSerializer(data=self.data)
             if serializer.is_valid():
                 serializer.save(owner=self.user, timestamp=timezone.now())
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                        serializer.data,
+                        status=status.HTTP_201_CREATED)
+            return Response(
+                    serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST)
 
 
 class MessageViewSet(viewsets.ReadOnlyModelViewSet):
@@ -50,5 +54,5 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     This viewset provides 'list' and 'detail' functionality
     """
-    queryset=User.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer

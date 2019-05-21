@@ -3,10 +3,12 @@ from rest_framework import serializers
 
 from .models import Channel, Message
 
+
 class ChannelSerializer(serializers.ModelSerializer):
-     class Meta:
-         model = Channel
-         fields = ('id', 'name', 'messages')
+    class Meta:
+        model = Channel
+        fields = ('id', 'name', 'messages')
+
 
 class MessageSerializer(serializers.ModelSerializer):
     owner = serializers.ReadOnlyField(source='owner.username')
@@ -17,8 +19,10 @@ class MessageSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    #FIXME add predicate to filter
-    messages = serializers.PrimaryKeyRelatedField(many=True, queryset=Message.objects)
+    # FIXME add predicate to filter
+    messages = serializers.PrimaryKeyRelatedField(
+            many=True,
+            queryset=Message.objects)
 
     class Meta:
         model = User

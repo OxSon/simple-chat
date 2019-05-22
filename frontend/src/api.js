@@ -2,7 +2,8 @@ import user_info from "./config/User.js";
 const API_URL = "http://localhost:8000/";
 
 function getToken() {
-    if (!localStorage.getItem("jwt_token")) {
+    if (!localStorage.getItem("token")) {
+        //!localStorage.getItem("jwt_token")) {
         fetch(`${API_URL}api-token-auth/`, {
             method: "POST",
             credentials: "include",
@@ -18,14 +19,15 @@ function getToken() {
             .then(response => response.json())
             .then(json => {
                 console.log("Token from src/Api: ", json.token);
-                localStorage.setItem("jwt_token", json.token);
+                localStorage.setItem("token", json.token);
             })
             .catch(error => console.log("Error from src/Api: ", error));
     }
 }
 
 async function request(endpoint, request, authenticated = false) {
-    let token = localStorage.getItem("jwt_token") || getToken();
+    //let token = localStorage.getItem("jwt_token") || getToken();
+    let token = localStorage.getItem("token") || getToken();
     let config = {};
 
     if (authenticated) {
@@ -34,11 +36,14 @@ async function request(endpoint, request, authenticated = false) {
                 headers: { Authorization: `JWT ${token}` }
             };
         } else {
-            throw "No token saved!";
+            throw Error("No token saved!");
         }
     }
 
-    request.Headers += config;
+    //request.Headers += config;
+    request.headers += config;
+    //console.log("func request sending: ", request);
+    //console.log("func request Headers: ", request.headers.Authorization);
 
     return fetch(`${API_URL}${endpoint}`, config);
 }
@@ -53,5 +58,5 @@ function checkStatus(response) {
     }
 }
 
-export { checkStatus, getToken };
+export { checkStatus getToken };
 export default request;

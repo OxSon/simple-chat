@@ -53,5 +53,5 @@ function checkStatus(response) {
     }
 }
 
-export { checkStatus, getToken };
+export { checkStatus, getToken, API_URL };
 export default request;

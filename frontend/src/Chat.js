@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import "./App.css";
-import request, { checkStatus, getToken } from "./Api.js";
+import request, { checkStatus, getToken, API_URL } from "./Api.js";
 
-const defaultChannelId = 4;
+const defaultChannelId = 2;
 
 function Frame() {
     return (
@@ -16,14 +16,49 @@ class MainContainer extends Component {
     constructor(props) {
         super(props);
         this.state = { channel: defaultChannelId };
+        this.setChannel = this.setChannel.bind(this);
+    }
+
+    setChannel(channel) {
+        this.setState({ channel });
     }
 
     render() {
         return (
             <React.Fragment>
+                <Channels channel={this.state.channel} setChannel={this.setChannel}/>
                 <MessageWindow channel={this.state.channel} />
                 <InputArea channel={this.state.channel} />
             </React.Fragment>
+        );
+    }
+}
+
+class Channels extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { channels: null };
+    }
+
+    componentDidMount() {
+        fetch(`${API_URL}channels`)
+            .then(checkStatus)
+            .then(res => res.json())
+            .then(channels => this.setState({channels}));
+    }
+    render() {
+        const { channels } = this.state;
+        const channelList = channels === null ? "" : channels.results.map(({name, id}) => {
+            return (
+                <li className={ this.props.channel === id ? "selected" : "" }
+                    key={`channel-${id}`}
+                    onClick={() => this.props.setChannel(id)}>{name}</li>
+            );
+        });
+        return (
+            <ul className="Channels">
+                {channelList}
+            </ul>
         );
     }
 }
@@ -93,8 +128,9 @@ class MessageWindow extends Component {
         this.state = { messages: [] };
     }
 
-    componentDidMount() {
+    fetchMessages() {
         request(`channels/${this.props.channel}/messages`, {
+            credentials: "include",
         }, true)
             .then(checkStatus)
             .then(response => {
@@ -107,6 +143,16 @@ class MessageWindow extends Component {
                 });
             })
             .catch(error => console.log(error));
+    }
+
+    componentDidMount() {
+        this.fetchMessages();
+    }
+
+    componentDidUpdate({channel}) {
+        if (channel !== this.props.channel) {
+            this.fetchMessages();
+        }
     }
 
     render() {

@@ -1,8 +1,10 @@
 import "./App.css";
 import React, { Component } from "react";
-import request, { checkStatus } from "./api.js";
+//import request, { checkStatus } from "./api.js";
+import { checkStatus } from "./api.js";
 
 const defaultChannelId = 4;
+//FIXME debugging
 
 function App() {
     return (
@@ -11,12 +13,13 @@ function App() {
         <MainContainer />
     );
 }
-
+    /*
 class Menu extends Component {
     constructor(props) {
         super(props);
     }
 }
+*/
 
 class MainContainer extends Component {
     constructor(props) {
@@ -62,7 +65,8 @@ class InputArea extends Component {
         };
         console.log("Handling submit: ", req);
 
-        request(`channels/${this.props.channel}/messages`, req, true)
+        //request(`channels/${this.props.channel}/messages`, req, true)
+        fetch(`channels/${this.props.channel}/messages`, req)
             .then(checkStatus)
             .then(response => response.json())
             .then(json => console.log(json));
@@ -99,7 +103,8 @@ class MessageWindow extends Component {
     }
 
     componentDidMount() {
-        request(`channels/${this.props.channel}/messages`, {}, true)
+        //request(`channels/${this.props.channel}/messages`, {}, true)
+        fetch(`channels/${this.props.channel}/messages`)
             .then(checkStatus)
             .then(response => {
                 return response.json();
@@ -111,17 +116,6 @@ class MessageWindow extends Component {
                 });
             })
             .catch(error => console.log(error));
-    }
-
-    Message(props) {
-        return (
-            <p>
-                <b>
-                    {props.owner}({props.timestamp})
-                </b>
-                {props.text}
-            </p>
-        );
     }
 
     render() {
@@ -141,6 +135,17 @@ class MessageWindow extends Component {
             </h1>
         );
     }
+}
+
+function Message(props) {
+    return (
+        <p>
+            <b>
+                {props.owner}({props.timestamp})
+            </b>
+            {props.text}
+        </p>
+    );
 }
 
 export default App;

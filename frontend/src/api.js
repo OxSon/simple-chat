@@ -66,11 +66,7 @@ async function verifyToken(_token) {
 
     console.log("verifyToken: req: ", req);
 
-    let response = await genericRequest(api.VERIFY_URL, req);
-
-    console.log("verifyToken: response: ", response);
-
-    return checkStatus(response);
+    return await genericRequest(api.VERIFY_URL, req);
 }
 
 function refreshToken(token) {
@@ -98,28 +94,23 @@ function getToken() {
     console.log("ReqInit obj: ", token_req);
 
     genericRequest(api.AUTH_URL, token_req)
-        .then(checkStatus)
-        .then(response => response.json())
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw Error(response.status, response.statusText);
+            }
+        })
         .then(json => {
-            console.log("Token from src/Api: ", json.token);
             localStorage.setItem("token", json.token);
 
-            //FIXME how does return work in promise chains?
             return json.token;
+        })
+        .then(token => { //is this necessary? promises are confusing maaaan
+            return token;
         })
         .catch(error => {
             console.log("Error from src/Api: ", error);
             return false;
         });
 }
-
-function checkStatus(response) {
-    if (response.status >= 200 && response.status < 300) {
-        return response;
-    } else {
-        console.log("checkStatus fail: ", response);
-        return false;
-    }
-}
-
-export { checkStatus };

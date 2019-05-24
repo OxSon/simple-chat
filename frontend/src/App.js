@@ -19,13 +19,13 @@ class MainContainer extends Component {
         let refresh = requests.verifyToken(token);
         console.log("Token valid?: ", refresh);
 
-        if(refresh) {
+        if (refresh) {
             this.fetchMessages();
         } else {
             this.setState({
-                message_window: <MessageWindow channel = {defaultChannelId}/>,
-                input_area: <InputArea channel = {defaultChannelId}/>
-            })
+                message_window: <MessageWindow channel={defaultChannelId} />,
+                input_area: <InputArea channel={defaultChannelId} />
+            });
         }
     }
 
@@ -33,13 +33,13 @@ class MainContainer extends Component {
         await requests.getToken();
 
         let comps = [
-            <MessageWindow channel = {defaultChannelId}/>,
-            <InputArea channel = {defaultChannelId}/>
+            <MessageWindow channel = {defaultChannelId} />,
+            <InputArea channel = {defaultChannelId} />
         ];
 
         this.setState({
             components: comps
-        })
+        });
     }
 
     //componentDidUpdate({messages}) {
@@ -73,10 +73,12 @@ class InputArea extends Component {
     }
 
     handleSubmit(event) {
+        console.log("Submitting: ", this.state.value);
+
         let message = {
             body: JSON.stringify({
                 channel: this.props.channel,
-                text: event.target.value
+                text: this.state.value
             })
         };
         console.log("Handling submit: ", message);
@@ -87,7 +89,6 @@ class InputArea extends Component {
                 message,
                 localStorage.getItem("token")
             )
-            .then(checkStatus)
             .then(response => response.json())
             .then(json => console.log(json));
 

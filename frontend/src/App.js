@@ -3,7 +3,6 @@ import React, { Component } from "react";
 import requests, { checkStatus } from "./api.js";
 
 const defaultChannelId = 4;
-//FIXME debugging
 
 class MainContainer extends Component {
     constructor(props) {
@@ -17,12 +16,13 @@ class MainContainer extends Component {
 
     componentDidMount() {
         let token = localStorage.getItem("token");
-        let refresh = requests.verifyToken(token);
-        console.log("Token valid?: ", refresh);
+        requests.verifyToken(token).then(refresh => {
+            console.log("Token valid?: ", refresh.ok);
 
-        if (refresh) {
-            this.fetchMessages();
-        }
+            if (!refresh.ok) {
+                this.updateToken();
+            }
+        });
     }
 
     componentDidUpdate({ channel }) {
@@ -31,8 +31,8 @@ class MainContainer extends Component {
         }
     }
 
-    async fetchMessages() {
-        await requests.getToken();
+    updateToken() {
+        requests.getToken();
     }
 
     setChannel(channel) {

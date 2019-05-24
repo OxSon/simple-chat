@@ -12,7 +12,7 @@ router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
         path('', include(router.urls)),
-        path('channels/<int:pk>/messages', views.ChannelViewSet.messages),
+        path('channels/<int:pk>/messages/', views.ChannelViewSet.messages),
         re_path(r'^api-token-auth/', obtain_jwt_token),
         re_path(r'^api-token-refresh/', refresh_jwt_token),
         re_path(r'^api-token-verify/', verify_jwt_token),

@@ -109,8 +109,7 @@ class ChannelMenu extends Component {
                             ? "selected"
                             : ""
                     } key = {`channel ${id}`}
-                    onClick= {() => this.props.setChannel(id)}>
-                    {name}</li>
+                    onClick = {() => this.props.setChannel(id)}>{name}</li>
                 );
             });
 

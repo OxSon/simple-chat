@@ -45,8 +45,11 @@ class MainContainer extends Component {
     render() {
         return (
             <React.Fragment>
-                <ChannelMenu channel={this.state.channel} setChannel={this.setChannel} />
-                <MessageWindow channel={this.state.channel} />,
+                <ChannelMenu
+                    channel={this.state.channel}
+                    setChannel={this.setChannel}
+                />
+                <MessageWindow channel={this.state.channel} />
                 <InputArea channel={this.state.channel} />
             </React.Fragment>
         );
@@ -166,7 +169,7 @@ class MessageWindow extends Component {
         this.fetchMessages();
     }
 
-    componentDidUpdate({channel}) {
+    componentDidUpdate({ channel }) {
         if (channel !== this.props.channel) {
             this.fetchMessages();
         }
@@ -177,7 +180,10 @@ class MessageWindow extends Component {
             .channelMessages(this.props.channel, localStorage.getItem("token"))
             .then(response => {
                 if (response.ok) {
-                    console.log("Message reponse received: ", response.statusText);
+                    console.log(
+                        "Message reponse received: ",
+                        response.statusText
+                    );
                     return response.json();
                 } else {
                     throw Error("Could not receive messages");
@@ -193,24 +199,13 @@ class MessageWindow extends Component {
             .catch(error => console.log("Did not receive messages: ", error));
     }
 
-    message(content) {
-        return (
-            <p>
-                <b>
-                    {content.owner}({content.timestamp})
-                </b>
-                {content.text}
-            </p>
-        );
-    }
-
     render() {
         return (
             <h1>
                 {this.state.messages
                     .slice(-3)
                     .map(m => (
-                        <message
+                        <Message
                             owner={m.owner}
                             timestamp={m.timestamp}
                             text={m.text}
@@ -221,6 +216,17 @@ class MessageWindow extends Component {
             </h1>
         );
     }
+}
+
+function Message(props) {
+    return (
+        <p>
+            <b>
+                {props.owner}({props.timestamp})
+            </b>
+            {props.text}
+        </p>
+    );
 }
 
 export default MainContainer;

@@ -1,6 +1,6 @@
 import "./App.css";
 import React, { Component } from "react";
-import requests, { checkStatus } from "./api.js";
+import requests from "./api.js";
 
 const defaultChannelId = 4;
 
@@ -44,14 +44,11 @@ class MainContainer extends Component {
 
     render() {
         return (
-            (
-                <ChannelMenu
-                    channel={this.state.channel}
-                    setChannel={this.setChannel}
-                />
-            ),
-            <MessageWindow channel={this.state.channel} />,
-            <InputArea channel={this.state.channel} />
+            <React.Fragment>
+                <ChannelMenu channel={this.state.channel} setChannel={this.setChannel} />
+                <MessageWindow channel={this.state.channel} />,
+                <InputArea channel={this.state.channel} />
+            </React.Fragment>
         );
     }
 }
@@ -66,33 +63,34 @@ class ChannelMenu extends Component {
         requests
             .getChannels()
             .then(response => {
-                if (checkStatus(response)) {
+                if (response.ok) {
                     return response.json();
                 } else {
-                    console.log("ChannelMenu error: ", response);
+                    console.log("ChannelMenu error: ", response.statusText);
                     throw Error(response.statusText);
                 }
             })
             .then(channels => this.setState({ channels }));
     }
+
     render() {
         const { channels } = this.state;
         const channelList =
             channels === null
                 ? ""
                 : channels.results.map(({ name, id }) => {
-                    return (
-                        <li
-                            className={
-                                this.props.channel === id ? "selected" : ""
-                            }
-                            key={`channel ${id}`}
-                            onClick={() => this.props.setChannel(id)}
-                        >
-                            {name}
-                        </li>
-                    );
-                });
+                      return (
+                          <li
+                              className={
+                                  this.props.channel === id ? "selected" : ""
+                              }
+                              key={`channel ${id}`}
+                              onClick={() => this.props.setChannel(id)}
+                          >
+                              {name}
+                          </li>
+                      );
+                  });
 
         return <ul className="Channels">{channelList}</ul>;
     }
@@ -157,16 +155,6 @@ class InputArea extends Component {
         );
     }
 }
-function Message(props) {
-    return (
-        <p>
-            <b>
-                {props.owner}({props.timestamp})
-            </b>
-            {props.text}
-        </p>
-    );
-}
 
 class MessageWindow extends Component {
     constructor(props) {
@@ -175,24 +163,45 @@ class MessageWindow extends Component {
     }
 
     componentDidMount() {
+        this.fetchMessages();
+    }
+
+    componentDidUpdate({channel}) {
+        if (channel !== this.props.channel) {
+            this.fetchMessages();
+        }
+    }
+
+    fetchMessages() {
         requests
             .channelMessages(this.props.channel, localStorage.getItem("token"))
-            .then(checkStatus)
             .then(response => {
-                if (response) {
+                if (response.ok) {
+                    console.log("Message reponse received: ", response.statusText);
                     return response.json();
                 } else {
                     throw Error("Could not receive messages");
                 }
             })
             .then(json => {
-                console.log(json);
+                console.log("Received messages: ", json);
 
                 this.setState({
                     messages: json
                 });
             })
-            .catch(error => console.log(error));
+            .catch(error => console.log("Did not receive messages: ", error));
+    }
+
+    message(content) {
+        return (
+            <p>
+                <b>
+                    {content.owner}({content.timestamp})
+                </b>
+                {content.text}
+            </p>
+        );
     }
 
     render() {
@@ -201,7 +210,7 @@ class MessageWindow extends Component {
                 {this.state.messages
                     .slice(-3)
                     .map(m => (
-                        <Message
+                        <message
                             owner={m.owner}
                             timestamp={m.timestamp}
                             text={m.text}

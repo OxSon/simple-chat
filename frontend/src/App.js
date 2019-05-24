@@ -12,6 +12,7 @@ class MainContainer extends Component {
             channel: defaultChannelId,
             components: []
         };
+        this.setChannel = this.setChannel.bind(this);
     }
 
     componentDidMount() {
@@ -23,9 +24,21 @@ class MainContainer extends Component {
             this.fetchMessages();
         } else {
             this.setState({
-                message_window: <MessageWindow channel={defaultChannelId} />,
-                input_area: <InputArea channel={defaultChannelId} />
+                components: [
+                    <ChannelMenu
+                        channel={this.state.channel}
+                        setChannel={this.setChannel}
+                    />,
+                    <MessageWindow channel={this.state.channel} />,
+                    <InputArea channel={this.state.channel} />
+                ]
             });
+        }
+    }
+
+    componentDidUpdate({channel}) {
+        if (channel !== this.props.channel) {
+            this.fetchMessages();
         }
     }
 
@@ -33,13 +46,21 @@ class MainContainer extends Component {
         await requests.getToken();
 
         let comps = [
-            <MessageWindow channel = {defaultChannelId} />,
-            <InputArea channel = {defaultChannelId} />
+            <ChannelMenu 
+                channel={this.state.channel}
+                setChannel={this.setChannel}
+            />,
+            <MessageWindow channel={defaultChannelId} />,
+            <InputArea channel={defaultChannelId} />
         ];
 
         this.setState({
-            components: comps
+            components: [...this.state.components, ...comps]
         });
+    }
+
+    setChannel(channel) {
+        this.setState({ channel })
     }
 
     //componentDidUpdate({messages}) {
@@ -55,6 +76,49 @@ class MainContainer extends Component {
         });
 
         return activeComponents;
+    }
+}
+
+class ChannelMenu extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { channels: null };
+    }
+
+    componentDidMount() {
+        requests.getChannels()
+            .then(response => {
+                if(checkStatus(response)) {
+                    return response.json();
+                } else {
+                    console.log("ChannelMenu error: ", response);
+                    throw Error(response.statusText);
+                }
+            })
+            .then(channels => this.setState({channels}));
+    }
+    render() {
+        const { channels } = this.state;
+        const channelList = channels ===
+            null
+            ? ""
+            : channels.results.map(({name, id}) => {
+                return (
+                    <li className={
+                        this.props.channel === id
+                            ? "selected"
+                            : ""
+                    } key = {`channel ${id}`}
+                    onClick= {() => this.props.setChannel(id)}>
+                    {name}</li>
+                );
+            });
+
+        return (
+            <ul className="Channels">
+                {channelList}
+            </ul>
+        )
     }
 }
 

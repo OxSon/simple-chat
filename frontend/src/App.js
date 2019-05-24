@@ -1,39 +1,60 @@
 import "./App.css";
 import React, { Component } from "react";
-//import request, { checkStatus } from "./api.js";
-import { checkStatus } from "./api.js";
+import requests, { checkStatus } from "./api.js";
 
 const defaultChannelId = 4;
 //FIXME debugging
 
-function App() {
-    return (
-        //FIXME to be added later
-        //<Menu/>
-        <MainContainer />
-    );
-}
-    /*
-class Menu extends Component {
-    constructor(props) {
-        super(props);
-    }
-}
-*/
-
 class MainContainer extends Component {
     constructor(props) {
         super(props);
-        this.state = { channel: defaultChannelId };
+        this.state = {
+            channel: defaultChannelId,
+            components: []
+        };
     }
 
+    componentDidMount() {
+        let token = localStorage.getItem("token");
+        let refresh = requests.verifyToken(token);
+        console.log("Token valid?: ", refresh);
+
+        if(refresh) {
+            this.fetchMessages();
+        } else {
+            this.setState({
+                message_window: <MessageWindow channel = {defaultChannelId}/>,
+                input_area: <InputArea channel = {defaultChannelId}/>
+            })
+        }
+    }
+
+    async fetchMessages() {
+        await requests.getToken();
+
+        let comps = [
+            <MessageWindow channel = {defaultChannelId}/>,
+            <InputArea channel = {defaultChannelId}/>
+        ];
+
+        this.setState({
+            components: comps
+        })
+    }
+
+    //componentDidUpdate({messages}) {
+    //}
+
     render() {
-        return (
-            <React.Fragment>
-                <MessageWindow channel={this.state.channel} />
-                <InputArea channel={this.state.channel} />
-            </React.Fragment>
-        );
+        let activeComponents = [];
+
+        this.state.components.forEach(comp => {
+            if (comp) {
+                activeComponents.push(comp);
+            }
+        });
+
+        return activeComponents;
     }
 }
 
@@ -52,24 +73,24 @@ class InputArea extends Component {
     }
 
     handleSubmit(event) {
-        let req = {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
+        let message = {
             body: JSON.stringify({
                 channel: this.props.channel,
-                text: this.state.value
+                text: event.target.value
             })
         };
-        console.log("Handling submit: ", req);
+        console.log("Handling submit: ", message);
 
-        //request(`channels/${this.props.channel}/messages`, req, true)
-        fetch(`channels/${this.props.channel}/messages`, req)
+        requests
+            .postMessage(
+                this.props.channel,
+                message,
+                localStorage.getItem("token")
+            )
             .then(checkStatus)
             .then(response => response.json())
             .then(json => console.log(json));
+
         event.preventDefault();
     }
 
@@ -95,6 +116,16 @@ class InputArea extends Component {
         );
     }
 }
+function Message(props) {
+    return (
+        <p>
+            <b>
+                {props.owner}({props.timestamp})
+            </b>
+            {props.text}
+        </p>
+    );
+}
 
 class MessageWindow extends Component {
     constructor(props) {
@@ -103,14 +134,19 @@ class MessageWindow extends Component {
     }
 
     componentDidMount() {
-        //request(`channels/${this.props.channel}/messages`, {}, true)
-        fetch(`channels/${this.props.channel}/messages`)
+        requests
+            .channelMessages(this.props.channel, localStorage.getItem("token"))
             .then(checkStatus)
             .then(response => {
-                return response.json();
+                if (response) {
+                    return response.json();
+                } else {
+                    throw Error("Could not receive messages");
+                }
             })
             .then(json => {
                 console.log(json);
+
                 this.setState({
                     messages: json
                 });
@@ -137,15 +173,4 @@ class MessageWindow extends Component {
     }
 }
 
-function Message(props) {
-    return (
-        <p>
-            <b>
-                {props.owner}({props.timestamp})
-            </b>
-            {props.text}
-        </p>
-    );
-}
-
-export default App;
+export default MainContainer;

@@ -1,130 +1,125 @@
-import { USERNAME, PASSWORD } from "./constants/user_constants";
-const API_URL = "http://localhost:8000/";
+import { user, api } from "./constants/api_constants.js";
 
-//FIXME probably a better structure for this process
+export default {
+    getChannels,
+    channelDetail,
+    channelMessages,
+    verifyToken,
+    refreshToken,
+    getToken,
+    postMessage
+};
 
-async function authenticate() {
-    if (await verifyToken()) {
-        console.log("authenticate: verified token");
-        return localStorage.getItem("token");
-    } else {
-        //FIXME this shit not be necessary yes?
-        console.log("authenticate: failed to verify token");
-        localStorage.clear();
-        await getToken();
+function genericRequest(target, options = {}, token = false) {
+    let defaultOpts = {
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+        }
+    };
+
+    if (token) {
+        console.log(
+            "token: ",
+            localStorage.getItem("token"),
+            "defaultHeaders: ",
+            defaultOpts
+        );
+        //defaultOpts.headers["Authorization"] = "JWT " + token;
+        defaultOpts.headers["Authorization"] =
+            "JWT " + localStorage.getItem("token");
     }
+
+    options.headers = { ...defaultOpts.headers, ...options.headers };
+
+    return fetch(target, options);
 }
 
-function getToken() {
-    console.log("getToken executed");
-    if (localStorage.getItem("token")) {
-        return localStorage.getItem("token");
-    } else {
-        let target_url = `${API_URL}api-token-auth/`;
-        let token_req = {
-            url: target_url,
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                username: USERNAME,
-                password: PASSWORD
-            })
-        };
-
-        console.log("ReqInit obj: ", token_req);
-        console.log("Request: ", new Request(target_url, token_req));
-
-        fetch(target_url, token_req)
-            .then(checkStatus)
-            .then(response => response.json())
-            .then(json => {
-                console.log("Token from src/Api: ", json.token);
-                localStorage.setItem("token", json.token);
-                return json.token;
-            })
-            .catch(error => {
-                console.log("Error from src/Api: ", error);
-                return null;
-            });
-    }
+function getChannels() {
+    return genericRequest(api.CHANNELS_URL);
 }
 
-function verifyToken() {
-    if (!localStorage.getItem("token")) {
+function channelDetail(pk) {
+    return genericRequest(api.channelDetail(pk));
+}
+
+function channelMessages(pk, token) {
+    return genericRequest(api.messagesURL(pk), {}, token);
+}
+
+function postMessage(pk, message, token) {
+    message.method = "POST";
+    return genericRequest(api.messagesURL(pk), message, token);
+}
+
+async function verifyToken(_token) {
+    if (!_token) {
         return false;
     }
 
-    //TODO refactor to use request() custom function
-    let target_url = `${API_URL}api-token-verify/`;
-    let verify_req = {
-        url: target_url,
+    let req = {
         method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json"
-        },
         body: JSON.stringify({
-            token: localStorage.getItem("token")
+            token: _token
         })
     };
 
-    console.log("ReqInit obj: ", verify_req);
-    console.log("Request: ", new Request(target_url, verify_req));
+    console.log("verifyToken: req: ", req);
 
-    fetch(target_url, verify_req)
-        //FIXME actually don't want to check status here as we don't want to just throw
-        //an error on a 400 response
-        //.then(checkStatus)
-        .then(response => {
-            if (response.status === 200) {
-                console.log("Verified token");
-                return true;
-            } else {
-                console.log("Could not verify token: ", response.status);
-                console.log("Response: ", response);
-            }
+    let response = await genericRequest(api.VERIFY_URL, req);
+
+    console.log("verifyToken: response: ", response);
+
+    return checkStatus(response);
+}
+
+function refreshToken(token) {
+    let options = {
+        method: "POST",
+        body: JSON.stringify({
+            token: token
         })
-        .catch(error => console.log("Error from verifyToken(): ", error));
+    };
 
-    return false;
+    return genericRequest(api.REFRESH_URL, options);
 }
 
-//FIXME broken, only sends plain GET requests
-/*
-async function request(endpoint, request = {}, authenticated = false) {
-    /*    let config = {};
+function getToken() {
+    console.log("getToken: executed");
 
-    if (authenticated) {
-        let token = getToken();
+    let token_req = {
+        method: "POST",
+        body: JSON.stringify({
+            username: user.USERNAME,
+            password: user.PASSWORD
+        })
+    };
 
-        if (token) {
-            config = {
-                headers: { Authorization: `JWT ${token}` }
-            };
-        } else {
-            throw new Error("No token saved!");
-        }
-    }
+    console.log("ReqInit obj: ", token_req);
 
-    request.Headers += config;
+    genericRequest(api.AUTH_URL, token_req)
+        .then(checkStatus)
+        .then(response => response.json())
+        .then(json => {
+            console.log("Token from src/Api: ", json.token);
+            localStorage.setItem("token", json.token);
 
-    return fetch(`${API_URL}${endpoint}`, config);
-    return await false;
+            //FIXME how does return work in promise chains?
+            return json.token;
+        })
+        .catch(error => {
+            console.log("Error from src/Api: ", error);
+            return false;
+        });
 }
-*/
 
 function checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
         return response;
     } else {
-        response
-            .then(response => response.json())
-            .then(json => console.log(json.detail));
+        console.log("checkStatus fail: ", response);
+        return false;
     }
 }
 
-export { authenticate, checkStatus };
-//export default request;
+export { checkStatus };
